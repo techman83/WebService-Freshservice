@@ -6,7 +6,7 @@ use warnings;
 use Method::Signatures 20140224;
 use JSON qw(from_json);
 use MIME::Base64 qw( encode_base64 );
-use WebService::Freshservice::Request;
+use LWP::UserAgent;
 use Moo;
 use namespace::autoclean;
 
@@ -31,7 +31,7 @@ has 'apiurl'  => ( is => 'ro', default => sub { "https://imdexlimited.freshservi
 has '_ua'     => ( is => 'rw', lazy => 1, builder => 1 );
 
 method _build__ua {
-  my $ua = WebService::Freshservice::Request->new( apikey => $self->apikey );
+  my $ua = LWP::UserAgent->new( apikey => $self->apikey );
   $ua->agent('WebService-Freshservice');
   $ua->timeout(60);
   $ua->env_proxy;
@@ -47,11 +47,6 @@ method _build__ua {
 method get_api ($endpoint) {
   my $result = $self->_ua->get($self->apiurl."/".$endpoint);
  
-  use Data::Dumper;
-  print Dumper($result,$self->_ua->get_basic_credentials);
-  
-  # Error Handling
-  
   # Try
   my $data = from_json($result->decoded_content);
   # Catch
