@@ -4,11 +4,14 @@ use v5.010;
 use strict;
 use warnings;
 use Method::Signatures 20140224;
-use JSON qw(from_json);
+use JSON qw( from_json to_json );
 use MIME::Base64 qw( encode_base64 );
+use Try::Tiny;
+use Carp qw( croak );
 use LWP::UserAgent;
+use Data::Dumper;
 use Moo;
-use namespace::autoclean;
+use namespace::clean;
 
 # ABSTRACT: Request abstraction to the Freshservice API
 
@@ -26,12 +29,14 @@ Provides a light wrapper to LWP::UserAgent against the Freshservice APIs
 
 =cut
 
+our $DEBUG = $ENV{FRESHSERVICE_DEBUG} || 0;
+
 has 'apikey'  => ( is => 'ro', required => 1 );
 has 'apiurl'  => ( is => 'ro', default => sub { "https://imdexlimited.freshservice.com" } );
 has '_ua'     => ( is => 'rw', lazy => 1, builder => 1 );
 
 method _build__ua {
-  my $ua = LWP::UserAgent->new( apikey => $self->apikey );
+  my $ua = LWP::UserAgent->new();
   $ua->agent('WebService-Freshservice');
   $ua->timeout(60);
   $ua->env_proxy;
@@ -44,13 +49,27 @@ method _build__ua {
   return $ua;
 }
 
+=method get_api
+
+  $api->get_api( "itil/requesters/123456.json" );
+
+Returns a perl object of the JSON decoded data struture API. Croaks
+on failure.
+
+=cut
+
 method get_api ($endpoint) {
   my $result = $self->_ua->get($self->apiurl."/".$endpoint);
- 
-  # Try
-  my $data = from_json($result->decoded_content);
-  # Catch
 
+  say Dumper($result) if $DEBUG;
+  croak "API failed ".$result->message unless $result->is_success;
+ 
+  my $data;
+  try {
+    $data = from_json($result->decoded_content);
+  } catch {
+    croak("Failed to parse json $_");
+  };
   return $data;
 }
 

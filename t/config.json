@@ -1,0 +1,30 @@
+{
+  "appname": "Freshservice Test Cache",
+  "charset": "UTF-8",
+  "session": "Simple",
+  "serializer": "JSON",
+  "content_type": "application/json",
+  "testdata" : {
+    "user": {
+      "active": true,
+      "address": null,
+      "created_at": "2016-07-11T16:02:28+08:00",
+      "custom_field": {},
+      "deleted": false,
+      "department_names": "",
+      "description": null,
+      "email": "test@example.com",
+      "external_id": "123456",
+      "helpdesk_agent": false,
+      "id": 1234567890,
+      "job_title": null,
+      "language": "en",
+      "location_name": null,
+      "mobile": null,
+      "name": "Test",
+      "phone": null,
+      "time_zone": "Perth",
+      "updated_at": "2016-07-18T09:28:47+08:00"
+    }
+  }
+}
