@@ -2,7 +2,7 @@ package WebService::Freshservice::Test::User;
 
 use Dancer2;
 
-post '/user' => sub {
+post '/itil/requesters.json' => sub {
   my $user->{user} = config->{testdata}{user};
   return $user;
 };

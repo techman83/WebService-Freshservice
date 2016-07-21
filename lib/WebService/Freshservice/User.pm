@@ -4,6 +4,7 @@ use v5.010;
 use strict;
 use warnings;
 use Method::Signatures 20140224;
+use Carp qw( croak );
 use Moo;
 use namespace::clean;
 
@@ -21,7 +22,7 @@ Requires an 'WebService::Freshservice::API' object and user id.
 
 =head1 DESCRIPTION
 
-Provides a Freshservice object.
+Provides a Freshservice user object.
 
 =cut
 

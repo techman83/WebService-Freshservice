@@ -73,4 +73,32 @@ method get_api ($endpoint) {
   return $data;
 }
 
+=method post_api
+
+  $api->post_api( "itil/requesters.json", $data );
+
+Returns a perl object of the JSON decoded data struture API. Croaks
+on failure.
+
+=cut
+
+method post_api ($endpoint,$content) {
+  my $result = $self->_ua->post(
+    $self->apiurl."/".$endpoint, 
+    "Content_Type"  => 'application/json',
+    Content         => to_json($content),
+  );
+
+  say Dumper($result) if $DEBUG;
+  croak "API failed ".$result->message unless $result->is_success;
+ 
+  my $data;
+  try {
+    $data = from_json($result->decoded_content);
+  } catch {
+    croak("Failed to parse json $_");
+  };
+  return $data;
+}
+
 1;
