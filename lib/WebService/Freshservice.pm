@@ -39,6 +39,88 @@ method _build__api {
 
 use WebService::Freshservice::User;
 
+=method user
+  $freshservice->user( id => '123456789' );
+
+Returns a WebService::Freshservice::User on success, croaks on failure.
+Optionally if you can use the attribute 'email' and it will search
+returning the first result, croaking if not found.
+
+=cut
+
+method user( :$id?, :$email? ) {
+  my $user;
+  if ($email) {
+    my @users = @{$self->users( email => $email )};
+    croak "No user found with $email" unless 0+@users > 0;
+    $user = $users[0];
+  } else {
+    croak "'id' or 'email' required." unless $id;
+    $user = WebService::Freshservice::User->new( api => $self->_api, id => $id );
+  }
+  return $user;
+}
+
+=method users
+  $freshservice->users( email => 'test@example.com');
+
+Perform a search on the provided attribute and optional state. If
+no querys are set it will return the first 50 results.
+
+Use one the following attributes, 'email', 'mobile' or 'phone'.
+
+Optionally state can be set to one of 'verified', 'unverified',
+'all' or 'deleted'. Defaults to 'all'.
+
+Returns an array of 'WebService::Freshservice::User' objects or
+empty array if no results are found.
+
+=cut
+
+# TODO: Pagination is possible using 'page=#'
+method users( 
+    :$email?, 
+    :$mobile?, 
+    :$phone?, 
+    :$state = 'all', 
+  ) {
+  
+  # Build query
+  my $query = "?";
+  if ($email) {
+    $query .= "query=email is $email";
+  }
+  if ($mobile) {
+    $query .= "&" unless $query eq "?";
+    $query .= "query=mobile is $mobile";
+  }
+  if ($phone) {
+    $query .= "&" unless $query eq "?";
+    $query .= "query=phone is $phone";
+  }
+  my $endpoint = '/itil/requesters.json';
+  $endpoint .= $query unless $query eq "?";
+  $endpoint .= $query eq "?" ? "?state=$state" : "&state=$state";
+  my $users = $self->_api->get_api($endpoint);
+
+  # Build objects
+  my @objects;
+  if ( 0+@{$users} > 0 ) {
+    foreach my $user ( @{$users} ) {
+      push(
+        @objects, 
+        WebService::Freshservice::User->new( 
+          api   => $self->_api, 
+          id    => $user->{user}{id}, 
+          _raw  => $user,
+        ),
+      );
+    }
+  }
+   
+  return \@objects;
+}
+
 =method create_user
 
   $freshservice->create_user( name => 'Test', email => 'Test@email.com' );

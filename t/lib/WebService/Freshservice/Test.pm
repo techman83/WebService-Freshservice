@@ -44,9 +44,10 @@ method test_with_dancer($test, $number_tests) {
   SKIP: {
     eval {  
       require Dancer2; 
+      require Scalar::Util;
     };
 
-    skip 'These tests are for cached testing and require Dancer2.', $number_tests if ($@);
+    skip 'These tests are for cached testing and require Dancer2 + Scalar::Util.', $number_tests if ($@);
 
     my $pid = fork();
 

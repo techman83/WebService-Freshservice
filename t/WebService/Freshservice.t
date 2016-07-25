@@ -25,7 +25,7 @@ sub user_testing {
   subtest 'Instantiation' => sub {
     isa_ok($freshservice, "WebService::Freshservice");
     
-    can_ok($freshservice, qw( create_user ));
+    can_ok($freshservice, qw( create_user user users ));
   };
 
   subtest 'Create User - Minimal Options' => sub {
@@ -55,6 +55,49 @@ sub user_testing {
     is( $user->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
   };
   
+  subtest 'Retrieve User' => sub {
+    my $user = $freshservice->user( id => '1234567890' );
+    is( $user->id, 1234567890, "'id' returned a value");
+    is( $user->email, 'test@example.com', "'email' returned an email address");
+
+    my $email = $freshservice->user( email => 'search@example.com' );
+    is( $email->email, 'search@example.com', "Search via email returns correct result");
+    
+    my $invalid = $freshservice->user( id => '9999999999' );
+    dies_ok { $invalid->name } "'user' method croaks on unknown user id";
+    dies_ok { $freshservice->user() } "'user' method requires an id at a minimum";
+    dies_ok { $freshservice->user( email => 'croak@example.com' ) } "'user' dies if no valid email found";
+  };
+
+  subtest 'Search Users' => sub {
+    my $blank = $freshservice->users();
+    is( (@{$blank})[1]->name, "Test 2", "Multiple users returned" );
+
+    my $email = $freshservice->users( email => 'query@example.com'); 
+    is( (@{$email})[0]->email, 'query@example.com', "User search based on email" );
+
+    my $mobile = $freshservice->users( mobile => '0400000001'); 
+    is( (@{$mobile})[0]->mobile, "0400000001", "User search based on mobile" );
+
+    my $phone = $freshservice->users( phone => '0386521453'); 
+    is( (@{$phone})[0]->phone, "0386521453", "User search based on phone" );
+
+    my $all = $freshservice->users( 
+      email => 'query@example.com',
+      mobile => '0400000001',
+      phone => '0386521453',
+    ); 
+    is( (@{$all})[0]->email, 'query@example.com', "Email returned from user multi query search" );
+    is( (@{$all})[0]->mobile, "0400000001", "Mobile returned from user multi query search" );
+    is( (@{$all})[0]->phone, "0386521453", "Phone returned from user multi query search" );
+    
+    my $deactivated = $freshservice->users( state => 'unverified' );
+    is( (@{$deactivated})[0]->active, 0, "state 'unverified' returns inactive users" );
+    
+    my $deleted = $freshservice->users( state => 'deleted' );
+    is( (@{$deleted})[0]->deleted, 1, "state 'deleted' returns deleted users" );
+  };
+
   subtest 'Failures' => sub {
     dies_ok { $freshservice->_build__api('argurment') } "method '_build__api' doesn't accept arguments";
   };

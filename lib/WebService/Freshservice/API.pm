@@ -62,7 +62,7 @@ method get_api ($endpoint) {
   my $result = $self->_ua->get($self->apiurl."/".$endpoint);
 
   say Dumper($result) if $DEBUG;
-  croak "API failed ".$result->message unless $result->is_success;
+  croak "API failed - error: '".$result->message."'" unless $result->is_success;
  
   my $data;
   try {
@@ -90,7 +90,7 @@ method post_api ($endpoint,$content) {
   );
 
   say Dumper($result) if $DEBUG;
-  croak "API failed ".$result->message unless $result->is_success;
+  croak "API failed - error: '".$result->message."'" unless $result->is_success;
  
   my $data;
   try {
