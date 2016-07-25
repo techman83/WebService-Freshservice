@@ -26,13 +26,15 @@ sub user_testing {
     my $get = $api->get_api( "/itil/requesters/1234.json" );
     is( $get->{user}{name}, "Test", "'get_api' returns data" );
     dies_ok { $api->get_api("invalid") } "'get_api' dies when JSON not received";
+    dies_ok { $api->get_api("unknown") } "'get_api' dies when success is not received";
   };
    
   subtest 'Post Method' => sub {
     my $user->{user}{name} = "Test";
     my $post = $api->post_api( "/itil/requesters.json", $user );
     is( $post->{user}{name}, "Test", "'get_api' returns data" );
-    dies_ok { $api->post_api("invalid") } "'get_api' dies when JSON not received";
+    dies_ok { $api->post_api("invalid") } "'post_api' dies when JSON not received";
+    dies_ok { $api->post_api("unknown") } "'post_api' dies when success is not received";
   };
    
   subtest 'Failures' => sub {
