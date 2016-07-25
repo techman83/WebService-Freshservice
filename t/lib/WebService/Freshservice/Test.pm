@@ -6,7 +6,7 @@ use WebService::Freshservice::API;
 use Method::Signatures;
 use Test::Most;
 use Moo;
-use namespace::autoclean;
+use namespace::clean;
 
 has 'config' => (
   is => 'ro',
@@ -43,11 +43,12 @@ method test_with_auth($test, $number_tests) {
 method test_with_dancer($test, $number_tests) {
   SKIP: {
     eval {  
-      require Dancer2; 
+      require Dancer2;
       require Scalar::Util;
     };
 
     skip 'These tests are for cached testing and require Dancer2 + Scalar::Util.', $number_tests if ($@);
+    skip 'Dancer2 >= 0.200000 required for these tests.', $number_tests unless $Dancer2::VERSION >= 0.200000;
 
     my $pid = fork();
 
