@@ -58,14 +58,12 @@ del '/itil/requesters/:id' => sub {
   return 1;
 };
 
-get '/organization/user/search' => sub {
-  my $user->{users} = [ config->{testdata}{user} ];
-  return $user;
+get '/invalid' => sub {
+  send_as html => '{ invalid json }';
 };
 
-get '/organization/user' => sub {
-  my $user->{users} = [ config->{testdata}{user} ];
-  return $user;
+post '/invalid' => sub {
+  send_as html => '{ invalid json }';
 };
 
 1;

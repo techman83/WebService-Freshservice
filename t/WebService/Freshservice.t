@@ -8,7 +8,7 @@ use Test::Warnings;
 
 my $tester = WebService::Freshservice::Test->new();
 
-$tester->test_with_dancer(\&user_testing, 7);
+$tester->test_with_dancer(\&user_testing, 8);
 
 sub user_testing {
   my ($api,$message) = @_;
@@ -48,11 +48,26 @@ sub user_testing {
     is( $user->job_title, undef, "'job_title' returned undef");
     is( $user->language, 'en', "'language' returned a value");
     is( $user->location_name, undef, "'location_name' returned undef");
-    is( $user->mobile, undef, "'mobile' returned undef");
+    is( $user->mobile, "0406000000", "'mobile' returned a value");
     is( $user->name, "Test", "'name' returned a value");
-    is( $user->phone, undef, "'mobile' returned undef");
+    is( $user->phone, "0386521453", "'phone' returned a value");
     is( $user->time_zone, 'Perth', "'time_zone' returned a value");
     is( $user->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
+
+    my $phone = $freshservice->create_user(
+      name  => "Test",
+      phone => '0386521453',
+    );
+    is( $phone->phone, "0386521453", "User creation with phone" );
+
+    my $mobile = $freshservice->create_user(
+      name   => "Test",
+      mobile => '0406000000',
+    );
+    is( $mobile->mobile, "0406000000", "User creation with mobile" );
+
+    dies_ok { $freshservice->create_user( email => 'test@example.com' ) } "method 'create_user' requires the name attribute";
+    dies_ok { $freshservice->create_user( name => 'Test', address => '111' ) } "method 'create_user' requires one of 'email', 'phone' or 'mobile'  attributes";
   };
   
   subtest 'Retrieve User' => sub {
@@ -65,7 +80,6 @@ sub user_testing {
     
     my $invalid = $freshservice->user( id => '9999999999' );
     dies_ok { $invalid->name } "'user' method croaks on unknown user id";
-    dies_ok { $freshservice->user() } "'user' method requires an id at a minimum";
     dies_ok { $freshservice->user( email => 'croak@example.com' ) } "'user' dies if no valid email found";
   };
 
@@ -100,6 +114,32 @@ sub user_testing {
 
   subtest 'Failures' => sub {
     dies_ok { $freshservice->_build__api('argurment') } "method '_build__api' doesn't accept arguments";
+    dies_ok { $freshservice->user( id => 'test', email => 'test', unknown => 'test') } "method 'user' only takes 2 arguments";
+    dies_ok { $freshservice->user } "'user' method requires an id at a minimum";
+    dies_ok { $freshservice->create_user } "'create_user' method requires arguments";
+    dies_ok { 
+      $freshservice->users(
+        email   => 'test',
+        mobile  => 'test',
+        phone   => 'test',
+        state   => 'test',
+        test    => 'test',
+      ) 
+    } "method 'users' only takes 4 arguments";
+    dies_ok { 
+      $freshservice->users(
+        name        => 'test',
+        email       => 'test',
+        address     => 'test',
+        description => 'test',
+        job_title   => 'test',
+        phone       => 'test',
+        mobile      => 'test',
+        language    => 'test',
+        timezone    => 'test',
+        test        => 'test',
+      ) 
+    } "method 'create_user' only takes 10 arguments";
   };
 }
 

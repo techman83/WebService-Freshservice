@@ -8,7 +8,7 @@ use Test::Warnings;
 
 my $tester = WebService::Freshservice::Test->new();
 
-$tester->test_with_dancer(\&user_testing, 7);
+$tester->test_with_dancer(\&user_testing, 8);
 
 sub user_testing {
   my ($api,$message) = @_;
@@ -44,9 +44,9 @@ sub user_testing {
     is( $user->job_title, undef, "'job_title' returned undef");
     is( $user->language, 'en', "'language' returned a value");
     is( $user->location_name, undef, "'location_name' returned undef");
-    is( $user->mobile, undef, "'mobile' returned undef");
+    is( $user->mobile, "0406000000", "'mobile' returned a value");
     is( $user->name, "Test", "'name' returned a value");
-    is( $user->phone, undef, "'mobile' returned undef");
+    is( $user->phone, "0386521453", "'phone' returned a value");
     is( $user->time_zone, 'Perth', "'time_zone' returned a value");
     is( $user->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
   };

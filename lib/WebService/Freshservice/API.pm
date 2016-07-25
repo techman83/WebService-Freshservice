@@ -61,8 +61,8 @@ on failure.
 method get_api ($endpoint) {
   my $result = $self->_ua->get($self->apiurl."/".$endpoint);
 
-  say Dumper($result) if $DEBUG;
-  croak "API failed - error: '".$result->message."'" unless $result->is_success;
+  say Dumper($result) if $DEBUG; # uncoverable statement
+  croak "API failed - error: '".$result->message."'" unless $result->is_success; # uncoverable statement
  
   my $data;
   try {
@@ -89,8 +89,8 @@ method post_api ($endpoint,$content) {
     Content         => to_json($content),
   );
 
-  say Dumper($result) if $DEBUG;
-  croak "API failed - error: '".$result->message."'" unless $result->is_success;
+  say Dumper($result) if $DEBUG; # uncoverable statement
+  croak "API failed - error: '".$result->message."'" unless $result->is_success; # uncoverable statement
  
   my $data;
   try {

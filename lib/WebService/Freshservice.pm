@@ -141,7 +141,6 @@ method create_user(
   :$email?, 
   :$address?,
   :$description?,
-  :$external_id?,
   :$job_title?,
   :$phone?,
   :$mobile?,
@@ -153,13 +152,13 @@ method create_user(
   $mandatory = $phone if $phone;
   $mandatory = $mobile if $mobile;
   croak("One of email, phone or mobile must be definded to create a user") unless $mandatory;
+  croak("Name must be definded to create a user") unless $name;
 
   my $content;
   $content->{user}{name}         = $name;
   $content->{user}{email}        = $email if $email;
   $content->{user}{address}      = $address if $address;
   $content->{user}{description}  = $description if $description;
-  $content->{user}{external_id}  = $external_id if $external_id;
   $content->{user}{job_title}    = $job_title if $job_title;
   $content->{user}{phone}        = $phone if $phone;
   $content->{user}{mobile}       = $mobile if $mobile;
