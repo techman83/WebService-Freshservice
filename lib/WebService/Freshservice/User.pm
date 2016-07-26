@@ -22,7 +22,8 @@ Requires an 'WebService::Freshservice::API' object and user id.
 
 =head1 DESCRIPTION
 
-Provides a Freshservice user object.
+Provides a Freshservice user object. Though users are referred to
+as 'Requesters' and 'Agents', agents are a super set of a user.
 
 =cut
 

@@ -8,9 +8,9 @@ use Test::Warnings;
 
 my $tester = WebService::Freshservice::Test->new();
 
-$tester->test_with_dancer(\&user_testing, 8);
+$tester->test_with_dancer(\&requester_testing, 8);
 
-sub user_testing {
+sub requester_testing {
   my ($api,$message) = @_;
 
   pass("Freshservice Testing: $message");  
@@ -25,109 +25,109 @@ sub user_testing {
   subtest 'Instantiation' => sub {
     isa_ok($freshservice, "WebService::Freshservice");
     
-    can_ok($freshservice, qw( create_user user users ));
+    can_ok($freshservice, qw( create_requester requester requesters ));
   };
 
-  subtest 'Create User - Minimal Options' => sub {
-    my $user = $freshservice->create_user(
+  subtest 'Create Requester - Minimal Options' => sub {
+    my $requester = $freshservice->create_requester(
       name  => "Test",
       email => 'test@example.com',
     );
 
-    is( $user->active, 1, "'active' returned true");
-    is( $user->address, undef, "'address' returned 'undef'");
-    is( $user->created_at, '2016-07-11T16:02:28+08:00', "'created_at' returned a raw date");
-    ok( $user->custom_field, "'custom_field' exists");
-    is( $user->deleted, 0, "'deleted' returned false");
-    is( $user->department_names, '', "'department_names' returned empty");
-    is( $user->description, undef, "'description' returned undef");
-    is( $user->email, 'test@example.com', "'email' returned an email address");
-    is( $user->external_id, 123456, "'external_id' returned a value");
-    is( $user->helpdesk_agent, 0, "'helpdesk_agent' returned false");
-    is( $user->id, 1234567890, "'id' returned a value");
-    is( $user->job_title, undef, "'job_title' returned undef");
-    is( $user->language, 'en', "'language' returned a value");
-    is( $user->location_name, undef, "'location_name' returned undef");
-    is( $user->mobile, "0406000000", "'mobile' returned a value");
-    is( $user->name, "Test", "'name' returned a value");
-    is( $user->phone, "0386521453", "'phone' returned a value");
-    is( $user->time_zone, 'Perth', "'time_zone' returned a value");
-    is( $user->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
+    is( $requester->active, 1, "'active' returned true");
+    is( $requester->address, undef, "'address' returned 'undef'");
+    is( $requester->created_at, '2016-07-11T16:02:28+08:00', "'created_at' returned a raw date");
+    ok( $requester->custom_field, "'custom_field' exists");
+    is( $requester->deleted, 0, "'deleted' returned false");
+    is( $requester->department_names, '', "'department_names' returned empty");
+    is( $requester->description, undef, "'description' returned undef");
+    is( $requester->email, 'test@example.com', "'email' returned an email address");
+    is( $requester->external_id, 123456, "'external_id' returned a value");
+    is( $requester->helpdesk_agent, 0, "'helpdesk_agent' returned false");
+    is( $requester->id, 1234567890, "'id' returned a value");
+    is( $requester->job_title, undef, "'job_title' returned undef");
+    is( $requester->language, 'en', "'language' returned a value");
+    is( $requester->location_name, undef, "'location_name' returned undef");
+    is( $requester->mobile, "0406000000", "'mobile' returned a value");
+    is( $requester->name, "Test", "'name' returned a value");
+    is( $requester->phone, "0386521453", "'phone' returned a value");
+    is( $requester->time_zone, 'Perth', "'time_zone' returned a value");
+    is( $requester->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
 
-    my $phone = $freshservice->create_user(
+    my $phone = $freshservice->create_requester(
       name  => "Test",
       phone => '0386521453',
     );
-    is( $phone->phone, "0386521453", "User creation with phone" );
+    is( $phone->phone, "0386521453", "Requester creation with phone" );
 
-    my $mobile = $freshservice->create_user(
+    my $mobile = $freshservice->create_requester(
       name   => "Test",
       mobile => '0406000000',
     );
-    is( $mobile->mobile, "0406000000", "User creation with mobile" );
+    is( $mobile->mobile, "0406000000", "Requester creation with mobile" );
 
-    dies_ok { $freshservice->create_user( email => 'test@example.com' ) } "method 'create_user' requires the name attribute";
-    dies_ok { $freshservice->create_user( name => 'Test', address => '111' ) } "method 'create_user' requires one of 'email', 'phone' or 'mobile'  attributes";
+    dies_ok { $freshservice->create_requester( email => 'test@example.com' ) } "method 'create_requester' requires the name attribute";
+    dies_ok { $freshservice->create_requester( name => 'Test', address => '111' ) } "method 'create_requester' requires one of 'email', 'phone' or 'mobile'  attributes";
   };
   
-  subtest 'Retrieve User' => sub {
-    my $user = $freshservice->user( id => '1234567890' );
-    is( $user->id, 1234567890, "'id' returned a value");
-    is( $user->email, 'test@example.com', "'email' returned an email address");
+  subtest 'Retrieve Requester' => sub {
+    my $requester = $freshservice->requester( id => '1234567890' );
+    is( $requester->id, 1234567890, "'id' returned a value");
+    is( $requester->email, 'test@example.com', "'email' returned an email address");
 
-    my $email = $freshservice->user( email => 'search@example.com' );
+    my $email = $freshservice->requester( email => 'search@example.com' );
     is( $email->email, 'search@example.com', "Search via email returns correct result");
     
-    my $invalid = $freshservice->user( id => '9999999999' );
-    dies_ok { $invalid->name } "'user' method croaks on unknown user id";
-    dies_ok { $freshservice->user( email => 'croak@example.com' ) } "'user' dies if no valid email found";
+    my $invalid = $freshservice->requester( id => '9999999999' );
+    dies_ok { $invalid->name } "'requester' method croaks on unknown requester id";
+    dies_ok { $freshservice->requester( email => 'croak@example.com' ) } "'requester' dies if no valid email found";
   };
 
-  subtest 'Search Users' => sub {
-    my $blank = $freshservice->users();
-    is( (@{$blank})[1]->name, "Test 2", "Multiple users returned" );
+  subtest 'Search Requesters' => sub {
+    my $blank = $freshservice->requesters();
+    is( (@{$blank})[1]->name, "Test 2", "Multiple requesters returned" );
 
-    my $email = $freshservice->users( email => 'query@example.com'); 
-    is( (@{$email})[0]->email, 'query@example.com', "User search based on email" );
+    my $email = $freshservice->requesters( email => 'query@example.com'); 
+    is( (@{$email})[0]->email, 'query@example.com', "Requester search based on email" );
 
-    my $mobile = $freshservice->users( mobile => '0400000001'); 
-    is( (@{$mobile})[0]->mobile, "0400000001", "User search based on mobile" );
+    my $mobile = $freshservice->requesters( mobile => '0400000001'); 
+    is( (@{$mobile})[0]->mobile, "0400000001", "Requester search based on mobile" );
 
-    my $phone = $freshservice->users( phone => '0386521453'); 
-    is( (@{$phone})[0]->phone, "0386521453", "User search based on phone" );
+    my $phone = $freshservice->requesters( phone => '0386521453'); 
+    is( (@{$phone})[0]->phone, "0386521453", "Requester search based on phone" );
 
-    my $all = $freshservice->users( 
+    my $all = $freshservice->requesters( 
       email => 'query@example.com',
       mobile => '0400000001',
       phone => '0386521453',
     ); 
-    is( (@{$all})[0]->email, 'query@example.com', "Email returned from user multi query search" );
-    is( (@{$all})[0]->mobile, "0400000001", "Mobile returned from user multi query search" );
-    is( (@{$all})[0]->phone, "0386521453", "Phone returned from user multi query search" );
+    is( (@{$all})[0]->email, 'query@example.com', "Email returned from requester multi query search" );
+    is( (@{$all})[0]->mobile, "0400000001", "Mobile returned from requester multi query search" );
+    is( (@{$all})[0]->phone, "0386521453", "Phone returned from requester multi query search" );
     
-    my $deactivated = $freshservice->users( state => 'unverified' );
-    is( (@{$deactivated})[0]->active, 0, "state 'unverified' returns inactive users" );
+    my $deactivated = $freshservice->requesters( state => 'unverified' );
+    is( (@{$deactivated})[0]->active, 0, "state 'unverified' returns inactive requesters" );
     
-    my $deleted = $freshservice->users( state => 'deleted' );
-    is( (@{$deleted})[0]->deleted, 1, "state 'deleted' returns deleted users" );
+    my $deleted = $freshservice->requesters( state => 'deleted' );
+    is( (@{$deleted})[0]->deleted, 1, "state 'deleted' returns deleted requesters" );
   };
 
   subtest 'Failures' => sub {
     dies_ok { $freshservice->_build__api('argurment') } "method '_build__api' doesn't accept arguments";
-    dies_ok { $freshservice->user( id => 'test', email => 'test', unknown => 'test') } "method 'user' only takes 2 arguments";
-    dies_ok { $freshservice->user } "'user' method requires an id at a minimum";
-    dies_ok { $freshservice->create_user } "'create_user' method requires arguments";
+    dies_ok { $freshservice->requester( id => 'test', email => 'test', unknown => 'test') } "method 'requester' only takes 2 arguments";
+    dies_ok { $freshservice->requester } "'requester' method requires an id at a minimum";
+    dies_ok { $freshservice->create_requester } "'create_requester' method requires arguments";
     dies_ok { 
-      $freshservice->users(
+      $freshservice->requesters(
         email   => 'test',
         mobile  => 'test',
         phone   => 'test',
         state   => 'test',
         test    => 'test',
       ) 
-    } "method 'users' only takes 4 arguments";
+    } "method 'requesters' only takes 4 arguments";
     dies_ok { 
-      $freshservice->users(
+      $freshservice->requesters(
         name        => 'test',
         email       => 'test',
         address     => 'test',
@@ -139,7 +139,7 @@ sub user_testing {
         timezone    => 'test',
         test        => 'test',
       ) 
-    } "method 'create_user' only takes 10 arguments";
+    } "method 'create_requester' only takes 10 arguments";
   };
 }
 

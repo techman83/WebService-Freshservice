@@ -39,8 +39,8 @@ method _build__api {
 
 use WebService::Freshservice::User;
 
-=method user
-  $freshservice->user( id => '123456789' );
+=method requester
+  $freshservice->requester( id => '123456789' );
 
 Returns a WebService::Freshservice::User on success, croaks on failure.
 Optionally if you can use the attribute 'email' and it will search
@@ -48,21 +48,21 @@ returning the first result, croaking if not found.
 
 =cut
 
-method user( :$id?, :$email? ) {
-  my $user;
+method requester( :$id?, :$email? ) {
+  my $requester;
   if ($email) {
-    my @users = @{$self->users( email => $email )};
-    croak "No user found with $email" unless 0+@users > 0;
-    $user = $users[0];
+    my @requesters = @{$self->requesters( email => $email )};
+    croak "No user found with $email" unless 0+@requesters > 0;
+    $requester = $requesters[0];
   } else {
     croak "'id' or 'email' required." unless $id;
-    $user = WebService::Freshservice::User->new( api => $self->_api, id => $id );
+    $requester = WebService::Freshservice::User->new( api => $self->_api, id => $id );
   }
-  return $user;
+  return $requester;
 }
 
-=method users
-  $freshservice->users( email => 'test@example.com');
+=method requesters
+  $freshservice->requesters( email => 'test@example.com');
 
 Perform a search on the provided attribute and optional state. If
 no querys are set it will return the first 50 results.
@@ -78,11 +78,11 @@ empty array if no results are found.
 =cut
 
 # TODO: Pagination is possible using 'page=#'
-method users( 
-    :$email?, 
-    :$mobile?, 
-    :$phone?, 
-    :$state = 'all', 
+method requesters(
+    :$email?,
+    :$mobile?,
+    :$phone?,
+    :$state = 'all',
   ) {
   
   # Build query
@@ -121,9 +121,9 @@ method users(
   return \@objects;
 }
 
-=method create_user
+=method create_requester
 
-  $freshservice->create_user( name => 'Test', email => 'Test@email.com' );
+  $freshservice->create_requester( name => 'Test', email => 'Test@email.com' );
 
 Returns a WebService::Freshservice::User object on success, croaks on
 failure.
@@ -136,7 +136,7 @@ external_id, job_title, language, timezone.
 
 =cut  
 
-method create_user(
+method create_requester(
   :$name,
   :$email?, 
   :$address?,
