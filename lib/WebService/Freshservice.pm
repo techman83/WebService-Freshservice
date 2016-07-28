@@ -124,7 +124,7 @@ method requester(...) {
   $freshservice->requesters( email => 'test@example.com');
 
 Perform a search on the provided attribute and optional state. If
-no querys are set it will return the first 50 results.
+no query is set it will return the first 50 results.
 
 Use one the following attributes, 'email', 'mobile' or 'phone'.
 
@@ -207,7 +207,7 @@ method agent(...) {
   $freshservice->agent( email => 'test@example.com');
 
 Perform a search on the provided attribute and optional state. If
-no querys are set it will return the first 50 results.
+no query is set it will return the first 50 results.
 
 Use one the following attributes, 'email', 'mobile' or 'phone'.
 

@@ -53,7 +53,7 @@ method _build__ua {
 
   $api->get_api( "itil/requesters/123456.json" );
 
-Returns a perl object of the JSON decoded data struture API. Croaks
+Returns a perl object of the JSON decoded data structure API. Croaks
 on failure.
 
 =cut
@@ -78,7 +78,7 @@ method get_api ($endpoint) {
 
   $api->post_api( "itil/requesters.json", $data );
 
-Returns a perl object of the JSON decoded data struture API. Croaks
+Returns a perl object of the JSON decoded data structure API. Croaks
 on failure.
 
 =cut
