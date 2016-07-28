@@ -112,6 +112,18 @@ sub requester_testing {
     is( (@{$deleted})[0]->deleted, 1, "state 'deleted' returns deleted requesters" );
   };
 
+  subtest 'Retrieve Agent' => sub {
+    my $agent = $freshservice->agent( id => '1234567890' );
+    is( $agent->id, 1234567890, "'id' returned a value");
+    is( $agent->email, 'agent@example.com', "'email' returned an email address");
+  };
+
+  subtest 'Retrieve Agents' => sub {
+    my $agents = $freshservice->agents( email => 'agent.smith@example.com' );
+    is( @{$agents}[0]->id, 19, "'id' returned a value");
+    is( @{$agents}[0]->email, 'agent.smith@example.com', "'email' returned an email address");
+  };
+
   subtest 'Failures' => sub {
     dies_ok { $freshservice->_build__api('argurment') } "method '_build__api' doesn't accept arguments";
     dies_ok { $freshservice->requester( id => 'test', email => 'test', unknown => 'test') } "method 'requester' only takes 2 arguments";

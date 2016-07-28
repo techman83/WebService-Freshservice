@@ -3,6 +3,35 @@ package WebService::Freshservice::Test::User;
 use Dancer2;
 use Scalar::Util 'reftype';
 
+get '/agents/:id' => sub {
+  if ( params->{id} eq '9999999999.json' ) {
+    send_error('{"errors":{"error":"Record Not Found"}}', 404);
+  }
+  my $agent->{agent}    = config->{testdata}{agent};
+  $agent->{agent}{user} = config->{testdata}{user};
+  $agent->{agent}{user}{email} = 'agent@example.com';
+  return $agent;
+};
+
+get '/agents.json' => sub {
+  my $params = params;
+  my $agent->{agent} = config->{testdata}{agent};
+  $agent->{agent}{user} = config->{testdata}{user};
+  my @query;
+  if ( defined $params->{query} ) {
+    @query = reftype \$params->{query} ne "SCALAR" ? @{$params->{query}} : $params->{query};
+  }
+
+  if ( 0+@query > 0 ) {
+    foreach my $query (@query) {
+      $query =~ /^(?<key>\w+)\sis\s(?<value>.+)$/;
+      $agent->{agent}{user}{$+{key}} = $+{value};
+    }
+  }
+
+  return [ $agent ];
+};
+
 post '/itil/requesters.json' => sub {
   my $user->{user} = config->{testdata}{user};
   return $user;

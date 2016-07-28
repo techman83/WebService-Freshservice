@@ -37,6 +37,74 @@ method _build__api {
   );
 }
 
+# Agent/User searching is pretty much identical.
+# TODO: Pagination is possible using 'page=#'
+method _search(
+    :$email?,
+    :$mobile?,
+    :$phone?,
+    :$state = 'all',
+  ) {
+
+  # Who ya gunna call? (find the calling method)
+  my $caller = substr((caller 1)[3],26);
+  my $package = $caller eq "requesters" ? "User" : "Agent";
+
+  # Build query
+  my $query = "?";
+  if ($email) {
+    $query .= "query=email is $email";
+  }
+  if ($mobile) {
+    $query .= "&" unless $query eq "?";
+    $query .= "query=mobile is $mobile";
+  }
+  if ($phone) {
+    $query .= "&" unless $query eq "?";
+    $query .= "query=phone is $phone";
+  }
+  my $endpoint = $caller eq 'requesters' ? "itil/requesters.json" : "agents.json";
+  $endpoint .= $query unless $query eq "?";
+  $endpoint .= $query eq "?" ? "?state=$state" : "&state=$state";
+  my $users = $self->_api->get_api($endpoint);
+
+  # Build objects
+  my @objects;
+  if ( 0+@{$users} > 0 ) {
+    foreach my $user ( @{$users} ) {
+      push(
+        @objects, 
+        "WebService::Freshservice::$package"->new( 
+          api   => $self->_api, 
+          id    => $user->{lc($package)}{id}, 
+          _raw  => $user,
+        ),
+      );
+    }
+  }
+   
+  return \@objects;
+}
+
+# Like the seach method, populating an agent is identical.
+method _user( :$id?, :$email? ) {
+  # Who ya gunna call? (find the calling method)
+  my $caller = substr((caller 1)[3],26);
+  my $package = $caller eq "requester" ? "User" : "Agent";
+  my $search = $caller."s"; # Our search methods are plurals of singular methods.
+
+  my $user;
+  if ($email) {
+    my @users = @{$self->$search( email => $email )};
+    croak "No $caller found with $email" unless 0+@users > 0;
+    $user = $users[0];
+  } else {
+    croak "'id' or 'email' required." unless $id;
+    $user = "WebService::Freshservice::$package"->new( api => $self->_api, id => $id );
+  }
+  return $user;
+}
+
 use WebService::Freshservice::User;
 
 =method requester
@@ -48,17 +116,8 @@ returning the first result, croaking if not found.
 
 =cut
 
-method requester( :$id?, :$email? ) {
-  my $requester;
-  if ($email) {
-    my @requesters = @{$self->requesters( email => $email )};
-    croak "No user found with $email" unless 0+@requesters > 0;
-    $requester = $requesters[0];
-  } else {
-    croak "'id' or 'email' required." unless $id;
-    $requester = WebService::Freshservice::User->new( api => $self->_api, id => $id );
-  }
-  return $requester;
+method requester(...) {
+  return $self->_user(@_);
 }
 
 =method requesters
@@ -77,48 +136,8 @@ empty array if no results are found.
 
 =cut
 
-# TODO: Pagination is possible using 'page=#'
-method requesters(
-    :$email?,
-    :$mobile?,
-    :$phone?,
-    :$state = 'all',
-  ) {
-  
-  # Build query
-  my $query = "?";
-  if ($email) {
-    $query .= "query=email is $email";
-  }
-  if ($mobile) {
-    $query .= "&" unless $query eq "?";
-    $query .= "query=mobile is $mobile";
-  }
-  if ($phone) {
-    $query .= "&" unless $query eq "?";
-    $query .= "query=phone is $phone";
-  }
-  my $endpoint = '/itil/requesters.json';
-  $endpoint .= $query unless $query eq "?";
-  $endpoint .= $query eq "?" ? "?state=$state" : "&state=$state";
-  my $users = $self->_api->get_api($endpoint);
-
-  # Build objects
-  my @objects;
-  if ( 0+@{$users} > 0 ) {
-    foreach my $user ( @{$users} ) {
-      push(
-        @objects, 
-        WebService::Freshservice::User->new( 
-          api   => $self->_api, 
-          id    => $user->{user}{id}, 
-          _raw  => $user,
-        ),
-      );
-    }
-  }
-   
-  return \@objects;
+method requesters(...) {
+  return $self->_search(@_);
 }
 
 =method create_requester
@@ -167,6 +186,41 @@ method create_requester(
  
   my $data = $self->_api->post_api("itil/requesters.json",$content);
   return WebService::Freshservice::User->new( api => $self->_api, _raw => $data, id => $data->{user}{id} );
+}
+
+use WebService::Freshservice::Agent;
+
+=method agent
+  $freshservice->agent( id => '123456789' );
+
+Returns a WebService::Freshservice::Agent on success, croaks on failure.
+Optionally if you can use the attribute 'email' and it will search
+returning the first result, croaking if not found.
+
+=cut
+
+method agent(...) {
+  return $self->_user(@_);
+}
+
+=method agent
+  $freshservice->agent( email => 'test@example.com');
+
+Perform a search on the provided attribute and optional state. If
+no querys are set it will return the first 50 results.
+
+Use one the following attributes, 'email', 'mobile' or 'phone'.
+
+Optionally state can be set to one of 'verified', 'unverified',
+'all' or 'deleted'. Defaults to 'all'.
+
+Returns an array of 'WebService::Freshservice::Agent' objects or
+empty array if no results are found.
+
+=cut
+
+method agents(...) {
+  return $self->_search(@_);
 }
 
 1;
