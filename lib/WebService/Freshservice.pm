@@ -44,6 +44,7 @@ method _search(
     :$mobile?,
     :$phone?,
     :$state = 'all',
+    :$page?,
   ) {
 
   # Who ya gunna call? (find the calling method)
@@ -66,6 +67,7 @@ method _search(
   my $endpoint = $caller eq 'requesters' ? "itil/requesters.json" : "agents.json";
   $endpoint .= $query unless $query eq "?";
   $endpoint .= $query eq "?" ? "?state=$state" : "&state=$state";
+  $endpoint .= "&page=$page" if $page;
   my $users = $self->_api->get_api($endpoint);
 
   # Build objects

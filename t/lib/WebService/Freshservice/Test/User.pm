@@ -2,6 +2,7 @@ package WebService::Freshservice::Test::User;
 
 use Dancer2;
 use Scalar::Util 'reftype';
+use Storable 'dclone';
 
 get '/agents/:id' => sub {
   if ( params->{id} eq '9999999999.json' ) {
@@ -48,6 +49,7 @@ get '/itil/requesters/:id' => sub {
 get '/itil/requesters.json' => sub {
   my $params = params;
   my $state = defined $params->{state} ? $params->{state} : "all";
+  my $page = defined $params->{page} ? $params->{page} : 1;
   my @query;
   if ( defined $params->{query} ) {
     @query = reftype \$params->{query} ne "SCALAR" ? @{$params->{query}} : $params->{query};
@@ -56,6 +58,7 @@ get '/itil/requesters.json' => sub {
   my $user->{user} = config->{testdata}{user};
   $user->{user}{deleted}  = true if $state eq "deleted";
   $user->{user}{active}   = false if $state eq "unverified";
+  $user->{user}{name}     = "Page $page" if $page > 1;
   
   if ( 0+@query > 0 ) {
     foreach my $query (@query) {
@@ -68,7 +71,7 @@ get '/itil/requesters.json' => sub {
   
   my $users;
   push(@{$users}, $user);
-  my $user2->{user} = config->{testdata}{user};
+  my $user2->{user} = dclone config->{testdata}{user};
   $user2->{user}{name}  = "Test 2";
   $user2->{user}{id}    = "0987654321";
   $user2->{user}{email} = 'test.2@example.com';

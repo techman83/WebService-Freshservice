@@ -110,6 +110,9 @@ sub requester_testing {
     
     my $deleted = $freshservice->requesters( state => 'deleted' );
     is( (@{$deleted})[0]->deleted, 1, "state 'deleted' returns deleted requesters" );
+    
+    my $paginated = $freshservice->requesters( page => 2 );
+    is( (@{$paginated})[0]->name, "Page 2", "page returns second page of results" );
   };
 
   subtest 'Retrieve Agent' => sub {
@@ -139,7 +142,7 @@ sub requester_testing {
       ) 
     } "method 'requesters' only takes 4 arguments";
     dies_ok { 
-      $freshservice->requesters(
+      $freshservice->create_requester(
         name        => 'test',
         email       => 'test',
         address     => 'test',
