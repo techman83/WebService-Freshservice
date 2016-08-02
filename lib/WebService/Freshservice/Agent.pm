@@ -68,4 +68,8 @@ method _build_agent {
   return $self->_raw->{agent}{$caller};
 }
 
+method delete_requester {
+  croak("This method is not available to Agents");
+}
+
 1;

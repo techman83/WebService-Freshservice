@@ -25,8 +25,7 @@ sub user_testing {
   subtest 'Instantiation' => sub {
     isa_ok($user, "WebService::Freshservice::User");
     
-    #can_ok($user, qw(retrieve create update update_attr activate
-    #  deactivate delete));
+    can_ok($user, qw( delete_requester ) );
   };
   
   subtest 'Retrieved Values' => sub {
@@ -49,6 +48,10 @@ sub user_testing {
     is( $user->phone, "0386521453", "'phone' returned a value");
     is( $user->time_zone, 'Perth', "'time_zone' returned a value");
     is( $user->updated_at, '2016-07-18T09:28:47+08:00', "'updated_at' returned a raw date");
+  };
+
+  subtest 'Actions' => sub {
+    is( $user->delete_requester, 1, "Requester deletes work correctly" );
   };
    
   subtest 'Failures' => sub {

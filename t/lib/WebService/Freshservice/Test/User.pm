@@ -87,7 +87,7 @@ put '/itil/requesters/:id' => sub {
 };
 
 del '/itil/requesters/:id' => sub {
-  return 1;
+  send_as html => "deleted";
 };
 
 get '/invalid' => sub {

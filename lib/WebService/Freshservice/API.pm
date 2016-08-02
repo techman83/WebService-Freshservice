@@ -103,4 +103,22 @@ method post_api ($endpoint,$content) {
   return $data;
 }
 
+=method delete_api
+
+  $api->delete_api( "itil/requesters/123456.json" );
+
+Returns 1 on success. Croaks on failure.
+
+=cut
+
+method delete_api ($endpoint) {
+  my $result = $self->_ua->delete($self->apiurl."/".$endpoint);
+
+  # uncoverable branch true
+  say Dumper($result) if $DEBUG;
+  croak "API failed - error: '".$result->message."'" unless $result->is_success;
+ 
+  return 1;
+}
+
 1;

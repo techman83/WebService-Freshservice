@@ -67,6 +67,7 @@ sub agent_testing {
     dies_ok { $agent->_build_user_override('argument') } "method '_build_user_override' doesn't accept arguments";
     dies_ok { $agent->_build_agent('argument') } "method '_build_agent' doesn't accept arguments";
     dies_ok { $agent->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
+    dies_ok { $agent->delete_requester } "method 'delete_requester' not available for agents";
   };
 }
 

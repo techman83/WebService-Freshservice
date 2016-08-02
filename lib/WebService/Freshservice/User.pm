@@ -68,4 +68,16 @@ method _build_user {
   return $self->_raw->{user}{$caller};
 }
 
+=method delete_requester
+
+  $requester->delete_requester( "itil/requesters/123456.json" );
+
+Returns 1 on success. Croaks on failure.
+
+=cut
+
+method delete_requester {
+  return $self->api->delete_api( "itil/requesters/".$self->id.".json" );
+}
+
 1;
