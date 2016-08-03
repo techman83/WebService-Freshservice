@@ -30,19 +30,19 @@ sub user_testing {
   
   subtest 'Retrieved Values' => sub {
     is( $user->active, 1, "'active' returned true");
-    is( $user->address, undef, "'address' returned 'undef'");
+    is( $user->address, "An Address", "'address' returned a value");
     is( $user->created_at, '2016-07-11T16:02:28+08:00', "'created_at' returned a raw date");
     ok( $user->custom_field, "'custom_field' exists");
     is( $user->deleted, 0, "'deleted' returned false");
     is( $user->department_names, '', "'department_names' returned empty");
-    is( $user->description, undef, "'description' returned undef");
+    is( $user->description, "I'm Testy McTestFace", "'description' returned a value");
     is( $user->email, 'test@example.com', "'email' returned an email address");
     is( $user->external_id, 123456, "'external_id' returned a value");
     is( $user->helpdesk_agent, 0, "'helpdesk_agent' returned false");
     is( $user->id, 1234567890, "'id' returned a value");
-    is( $user->job_title, undef, "'job_title' returned undef");
+    is( $user->job_title, "Tester of Things", "'job_title' returned a value");
     is( $user->language, 'en', "'language' returned a value");
-    is( $user->location_name, undef, "'location_name' returned undef");
+    is( $user->location_name, "Testland", "'location_name' returned a value");
     is( $user->mobile, "0406000000", "'mobile' returned a value");
     is( $user->name, "Test", "'name' returned a value");
     is( $user->phone, "0386521453", "'phone' returned a value");

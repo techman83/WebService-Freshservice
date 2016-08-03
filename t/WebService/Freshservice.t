@@ -35,19 +35,19 @@ sub requester_testing {
     );
 
     is( $requester->active, 1, "'active' returned true");
-    is( $requester->address, undef, "'address' returned 'undef'");
+    is( $requester->address, "An Address", "'address' returned a value");
     is( $requester->created_at, '2016-07-11T16:02:28+08:00', "'created_at' returned a raw date");
     ok( $requester->custom_field, "'custom_field' exists");
     is( $requester->deleted, 0, "'deleted' returned false");
     is( $requester->department_names, '', "'department_names' returned empty");
-    is( $requester->description, undef, "'description' returned undef");
+    is( $requester->description, "I'm Testy McTestFace", "'description' returned a value");
     is( $requester->email, 'test@example.com', "'email' returned an email address");
     is( $requester->external_id, 123456, "'external_id' returned a value");
     is( $requester->helpdesk_agent, 0, "'helpdesk_agent' returned false");
     is( $requester->id, 1234567890, "'id' returned a value");
-    is( $requester->job_title, undef, "'job_title' returned undef");
+    is( $requester->job_title, "Tester of Things", "'job_title' returned a value");
     is( $requester->language, 'en', "'language' returned a value");
-    is( $requester->location_name, undef, "'location_name' returned undef");
+    is( $requester->location_name, "Testland", "'location_name' returned a value");
     is( $requester->mobile, "0406000000", "'mobile' returned a value");
     is( $requester->name, "Test", "'name' returned a value");
     is( $requester->phone, "0386521453", "'phone' returned a value");
