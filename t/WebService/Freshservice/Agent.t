@@ -68,6 +68,7 @@ sub agent_testing {
     dies_ok { $agent->_build_agent('argument') } "method '_build_agent' doesn't accept arguments";
     dies_ok { $agent->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
     dies_ok { $agent->delete_requester } "method 'delete_requester' not available for agents";
+    dies_ok { $agent->update_requester } "method 'update_requester' not available for agents";
   };
 }
 

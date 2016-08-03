@@ -8,7 +8,7 @@ use Test::Warnings;
 
 my $tester = WebService::Freshservice::Test->new();
 
-$tester->test_with_dancer(\&user_testing, 8);
+$tester->test_with_dancer(\&user_testing, 9);
 
 sub user_testing {
   my ($api,$message) = @_;
@@ -53,10 +53,44 @@ sub user_testing {
   subtest 'Actions' => sub {
     is( $user->delete_requester, 1, "Requester deletes work correctly" );
   };
+  
+  subtest 'Attribute Clearing' => sub {
+    $user->_clear_all;
+    my @attributes = qw( 
+      active created_at custom_field deleted department_names 
+      helpdesk_agent updated_at address description email external_id 
+      language location_name job_title mobile name phone time_zone _raw
+    );
+    foreach my $attr (@attributes) {
+      is( $user->{$attr}, undef, "Attribute '$attr' was cleared" );
+    }
+  };
    
+  subtest 'Attribute Updating' => sub {
+    my $update = WebService::Freshservice::User->new(
+      api  => $api,
+      id   => '1337',
+    );
+    is( $update->name, "Test", "Name correct on initial population" );
+    $update->name('Elite');
+    $update->update_requester;
+    is( $update->name, "Elite", "Name correct post object update" );
+    $update->update_requester( attr => 'name', value => 'Dangerous' );
+    is( $update->name, "Dangerous", "Individual attribute update completed" );
+    my @attributes = qw( 
+      active created_at custom_field deleted department_names 
+      helpdesk_agent updated_at
+    );
+    foreach my $attr (@attributes) {
+      dies_ok { $user->update_requester( attr => $attr, value => "update" ) } "'$attr' is non writeable, croaks accordingly";
+    }
+  };
+
   subtest 'Failures' => sub {
     dies_ok { $user->_build_user('argument') } "method '_build_user' doesn't accept arguments";
     dies_ok { $user->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
+    dies_ok { $user->_build__attributes('argurment') } "method '_build__attributes' doesn't accept arguments";
+    dies_ok { $user->_clear_all('argurment') } "method '_clear_all' doesn't accept arguments";
   };
 }
 

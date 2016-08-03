@@ -4,10 +4,13 @@ use Dancer2;
 use Scalar::Util 'reftype';
 use Storable 'dclone';
 
+our $putuser;
+
 get '/agents/:id' => sub {
   if ( params->{id} eq '9999999999.json' ) {
     send_error('{"errors":{"error":"Record Not Found"}}', 404);
   }
+  
   my $agent->{agent}    = config->{testdata}{agent};
   $agent->{agent}{user} = config->{testdata}{user};
   $agent->{agent}{user}{email} = 'agent@example.com';
@@ -42,6 +45,12 @@ get '/itil/requesters/:id' => sub {
   if ( params->{id} eq '9999999999.json' ) {
     send_error('{"errors":{"error":"Record Not Found"}}', 404);
   }
+  
+  if ( params->{id} eq '1337.json' ) {
+    $putuser->{user} = $putuser->{user} ? $putuser->{user} : config->{testdata}{user};
+    return $putuser;
+  }
+
   my $user->{user} = config->{testdata}{user};
   return $user;
 };
@@ -81,9 +90,11 @@ get '/itil/requesters.json' => sub {
 
 put '/itil/requesters/:id' => sub {
   my $data = from_json(request->body);
-  my $user->{user} = config->{testdata}{user};
-
-  return $user;
+  $putuser->{user} = dclone config->{testdata}{user};
+  foreach my $key (keys $data->{user}) {
+    $putuser->{user}{$key} = $data->{user}{$key}; 
+  }
+  return;
 };
 
 del '/itil/requesters/:id' => sub {

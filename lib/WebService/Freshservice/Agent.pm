@@ -72,4 +72,8 @@ method delete_requester {
   croak("This method is not available to Agents");
 }
 
+method update_requester {
+  croak("This method is not available to Agents");
+}
+
 1;

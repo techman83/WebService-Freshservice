@@ -103,6 +103,33 @@ method post_api ($endpoint,$content) {
   return $data;
 }
 
+=method put_api
+
+  $api->put_api( "itil/requesters.json", $data );
+
+API returns 200 OK with no content. Croaks on failure.
+
+=cut
+
+method put_api ($endpoint,$content) {
+  my $data = to_json(
+    $content, { 
+      allow_blessed   => 1,
+      convert_blessed => 1,
+    }
+  );
+  my $result = $self->_ua->put(
+    $self->apiurl."/".$endpoint, 
+    "Content_Type"  => 'application/json',
+    Content         => $data,
+  );
+
+  # uncoverable branch true
+  say Dumper($result) if $DEBUG;
+  croak "API failed - error: '".$result->message."'" unless $result->is_success;
+  return;
+}
+
 =method delete_api
 
   $api->delete_api( "itil/requesters/123456.json" );

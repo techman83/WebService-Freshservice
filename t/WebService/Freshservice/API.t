@@ -32,17 +32,26 @@ sub user_testing {
   subtest 'Post Method' => sub {
     my $user->{user}{name} = "Test";
     my $post = $api->post_api( "/itil/requesters.json", $user );
-    is( $post->{user}{name}, "Test", "'get_api' returns data" );
+    is( $post->{user}{name}, "Test", "'post_api' returns data" );
     dies_ok { $api->post_api("invalid") } "'post_api' dies when JSON not received";
     dies_ok { $api->post_api("unknown") } "'post_api' dies when success is not received";
   };
    
+  subtest 'Put Method' => sub {
+    my $user->{user}{name} = "Elite";
+    my $put = $api->put_api( "/itil/requesters/1337.json", $user );
+    my $get = $api->get_api( "/itil/requesters/1337.json" );
+    is( $get->{user}{name}, "Elite", "'put_api' updates data" );
+  };
+
   subtest 'Failures' => sub {
     dies_ok { $api->_build__ua('argurment') } "method '_build__ua' doesn't accept arguments";
     dies_ok { $api->get_api() } "method 'get_api' requires an argument";
     dies_ok { $api->get_api('arg1', 'arg2' ) } "method 'get_api' only takes a singular argument";
     dies_ok { $api->post_api() } "method 'post_api' requires arguments";
     dies_ok { $api->post_api('arg1', 'arg2', 'arg3') } "method 'post_api' only takes 2 arguments";
+    dies_ok { $api->put_api() } "method 'put_api' requires arguments";
+    dies_ok { $api->put_api('arg1', 'arg2', 'arg3') } "method 'put_api' only takes 2 arguments";
   };
 }
 

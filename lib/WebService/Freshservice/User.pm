@@ -4,7 +4,9 @@ use v5.010;
 use strict;
 use warnings;
 use Method::Signatures 20140224;
+use List::MoreUtils qw(any);
 use Carp qw( croak );
+use JSON qw( encode_json );
 use Moo;
 use namespace::clean;
 
@@ -34,29 +36,31 @@ my $Ref = sub {
 # Library Fields
 has 'api'               => ( is => 'rw', required => 1, isa => $Ref );
 has 'id'                => ( is => 'ro', required => 1 );
-has '_raw'              => ( is => 'rwp', lazy => 1, builder => 1 );
+has '_attributes'       => ( is => 'rwp', lazy => 1, builder => 1 );
+has '_attributes_rw'    => ( is => 'rwp', lazy => 1, builder => 1 );
+has '_raw'              => ( is => 'rwp', lazy => 1, builder => 1, clearer => 1 );
 
 # Fixed fields
-has 'active'            => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'created_at'        => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'custom_field'      => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'deleted'           => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'department_names'  => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'helpdesk_agent'    => ( is => 'rwp', lazy => 1, builder => '_build_user' );
-has 'updated_at'        => ( is => 'rwp', lazy => 1, builder => '_build_user' );
+has 'active'            => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'created_at'        => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'custom_field'      => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'deleted'           => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'department_names'  => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'helpdesk_agent'    => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'updated_at'        => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
 
 # Updateable Fields
-has 'address'           => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'description'       => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'email'             => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'external_id'       => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'language'          => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'location_name'     => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'job_title'         => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'mobile'            => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'name'              => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'phone'             => ( is => 'rw', lazy => 1, builder => '_build_user' );
-has 'time_zone'         => ( is => 'rw', lazy => 1, builder => '_build_user' );
+has 'address'           => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'description'       => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'email'             => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'external_id'       => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'language'          => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'location_name'     => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'job_title'         => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'mobile'            => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'name'              => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'phone'             => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
+has 'time_zone'         => ( is => 'rw', lazy => 1, builder => '_build_user', clearer => 1 );
 
 method _build__raw {
   return $self->api->get_api( "itil/requesters/".$self->id.".json" );
@@ -68,9 +72,35 @@ method _build_user {
   return $self->_raw->{user}{$caller};
 }
 
+method _build__attributes {
+  my @attributes = qw( 
+    active created_at custom_field deleted department_names 
+    helpdesk_agent updated_at
+  );
+  push(@attributes, @{$self->_attributes_rw});
+  return \@attributes;
+}
+
+method _build__attributes_rw {
+  my @attributes = qw( 
+    address description email external_id language 
+    location_name job_title mobile name phone time_zone 
+  );
+  return \@attributes;
+}
+
+method _clear_all {
+  foreach my $attr (@{$self->_attributes}) {
+    my $clearer = "clear_$attr";
+    $self->$clearer;
+  }
+  $self->_clear_raw;
+  return;
+}
+
 =method delete_requester
 
-  $requester->delete_requester( "itil/requesters/123456.json" );
+  $requester->delete_requester;
 
 Returns 1 on success. Croaks on failure.
 
@@ -78,6 +108,60 @@ Returns 1 on success. Croaks on failure.
 
 method delete_requester {
   return $self->api->delete_api( "itil/requesters/".$self->id.".json" );
+}
+
+=method update_requester
+  
+  $requester->update_requester;
+
+The following attributes can be updated and 'PUT' against
+the API:
+
+  address description email external_id language 
+  location_name job_title mobile name phone time_zone
+    
+Optionally takes named attributes of 'attr' and 'value' if only updating
+a single attribute.
+
+  $requester->update_requester( attr => 'address', value => 'Some new address' );
+  
+API returns 200 OK and no content regardless if the put resulted in a
+successful change. Returns 1, croaks on failure.
+  
+=cut
+
+method update_requester(:$attr?, :$value?) {
+  if ( $attr ) {
+    croak "'value' required if providing an 'attr'" unless $value;
+    croak "'$attr' is not a valid attribute, valid attributes are".join(" ", @{$self->_attributes_rw}) unless
+      any { $_ eq $attr } @{$self->_attributes_rw};
+    my $update->{user}{$attr} = $value;
+    $self->api->put_api( "itil/requesters/".$self->id.".json", $update);
+    $self->_clear_all;
+    return 1;
+  }
+  $self->api->put_api( "itil/requesters/".$self->id.".json", $self);
+  $self->_clear_all;
+  return 1;
+}
+
+# Internal method that returns a clean perl data structure
+# for encode_json
+method TO_JSON {
+  my $data->{user} = {
+    address       => $self->address,
+    description   => $self->description,
+    email         => $self->email,
+    external_id   => $self->external_id,
+    language      => $self->language,
+    location_name => $self->location_name,
+    job_title     => $self->job_title,
+    mobile        => $self->mobile,
+    name          => $self->name,
+    phone         => $self->phone,
+    time_zone     => $self->time_zone,
+  };
+  return $data;
 }
 
 1;
