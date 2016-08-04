@@ -151,7 +151,7 @@ method update_requester(:$attr?, :$value?) {
   $requester->custom_fields;
   
 Will return a hash of WebService::Freshservice::User::CustomField objects. Returns
-an empty object if your freshservice instance doesn't have any custom fields
+an empty object if your Freshservice instance doesn't have any custom fields
 configured.
 
 =cut
@@ -214,12 +214,12 @@ method set_custom_field(:$field, :$value, :$update = 1) {
 
 Returns a WebService::Freshservice::User::CustomField object of
 the named Custom Field. Croaks if the field doesn't exist in
-freshservice.
+Freshservice.
 
 =cut
 
 method get_custom_field($field) {
-  croak "Custom field must exist in freshservice" 
+  croak "Custom field must exist in Freshservice" 
     unless exists $self->_raw->{user}{custom_field}{$field};
   return $self->_get_cf($field);
 }
