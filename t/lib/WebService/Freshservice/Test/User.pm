@@ -45,9 +45,15 @@ get '/itil/requesters/:id' => sub {
   if ( params->{id} eq '9999999999.json' ) {
     send_error('{"errors":{"error":"Record Not Found"}}', 404);
   }
-  
+ 
+  # Custom field testing 
   if ( params->{id} eq '1337.json' ) {
-    $putuser->{user} = $putuser->{user} ? $putuser->{user} : config->{testdata}{user};
+    $putuser->{user} = $putuser->{user} ? $putuser->{user} : dclone config->{testdata}{user};
+    return $putuser;
+  }
+  if ( params->{id} eq '1338.json' ) {
+    $putuser->{user} = $putuser->{user} ? $putuser->{user} : dclone config->{testdata}{user};
+    $putuser->{user}{custom_field} = { };
     return $putuser;
   }
 
@@ -90,7 +96,7 @@ get '/itil/requesters.json' => sub {
 
 put '/itil/requesters/:id' => sub {
   my $data = from_json(request->body);
-  $putuser->{user} = dclone config->{testdata}{user};
+  $putuser->{user} = $putuser->{user} ? $putuser->{user} : dclone config->{testdata}{user};
   foreach my $key (keys $data->{user}) {
     $putuser->{user}{$key} = $data->{user}{$key}; 
   }

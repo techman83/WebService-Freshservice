@@ -32,7 +32,17 @@ sub user_testing {
     is( $user->active, 1, "'active' returned true");
     is( $user->address, "An Address", "'address' returned a value");
     is( $user->created_at, '2016-07-11T16:02:28+08:00', "'created_at' returned a raw date");
-    ok( $user->custom_field, "'custom_field' exists");
+    cmp_deeply( 
+      $user->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          value => 'field value',
+          field => 'cf_field_name',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' returns a object"
+    );
     is( $user->deleted, 0, "'deleted' returned false");
     is( $user->department_names, '', "'department_names' returned empty");
     is( $user->description, "I'm Testy McTestFace", "'description' returned a value");
@@ -71,14 +81,108 @@ sub user_testing {
       api  => $api,
       id   => '1337',
     );
+   
+    # Simple Attributes
     is( $update->name, "Test", "Name correct on initial population" );
     $update->name('Elite');
     $update->update_requester;
     is( $update->name, "Elite", "Name correct post object update" );
     $update->update_requester( attr => 'name', value => 'Dangerous' );
     is( $update->name, "Dangerous", "Individual attribute update completed" );
+
+    ## Custom Fields
+    cmp_deeply( 
+      $update->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          field => 'cf_field_name',
+          value => 'field value',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' returns a object without a value"
+    );
+    $update->set_custom_field( 
+      field => 'cf_field_name',
+      value => 'strawberry fields'
+    );
+    
+    my $confirm = WebService::Freshservice::User->new(
+      api  => $api,
+      id   => '1337',
+    );
+    cmp_deeply( 
+      $confirm->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          field => 'cf_field_name',
+          value => 'strawberry fields',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' value immediately"
+    );
+
+    $update->set_custom_field( 
+      field   => 'cf_field_name',
+      value   => 'forever',
+      update  => 0,
+    );
+    
+    my $noupdate = WebService::Freshservice::User->new(
+      api  => $api,
+      id   => '1337',
+    );
+    cmp_deeply( 
+      $noupdate->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          field => 'cf_field_name',
+          value => 'strawberry fields',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' value not updated immediately"
+    );
+
+    $update->update_requester;
+
+    my $updated = WebService::Freshservice::User->new(
+      api  => $api,
+      id   => '1337',
+    );
+    cmp_deeply( 
+      $updated->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          field => 'cf_field_name',
+          value => 'forever',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' value not updated after requester update"
+    );
+
+    is($updated->get_custom_field('cf_field_name')->value, "forever", "Custom field values can be called inline");
+  
+    my $no_cf = WebService::Freshservice::User->new(
+      api  => $api,
+      id   => '1338',
+    );
+    cmp_deeply( 
+      $no_cf->custom_field,
+      noclass( { } ),
+      "'custom_field' is an empty object if no custom fields exist",
+    );
+    throws_ok
+      { $no_cf->get_custom_field('no field') }
+      qr/Custom field must exist in freshservice/,
+      "'get_custom_field' dies if retrieval of a field isn't present"
+    ;
+
+    # Non modifiable fields
     my @attributes = qw( 
-      active created_at custom_field deleted department_names 
+      active custom_field created_at deleted department_names
       helpdesk_agent updated_at
     );
     foreach my $attr (@attributes) {

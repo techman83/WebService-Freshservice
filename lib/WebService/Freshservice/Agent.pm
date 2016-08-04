@@ -5,7 +5,9 @@ use strict;
 use warnings;
 use Method::Signatures 20140224;
 use Carp qw( croak );
+use WebService::Freshservice::User::CustomField;
 use Moo;
+use MooX::HandlesVia;
 use namespace::clean;
 
 # ABSTRACT: Freshservice User
@@ -68,11 +70,35 @@ method _build_agent {
   return $self->_raw->{agent}{$caller};
 }
 
+method _build_custom_field {
+  my $custom_field = $self->_raw->{agent}{user}{custom_field};
+  my $fields = { };
+  foreach my $key ( keys $custom_field ) {
+    $fields->{$key} = WebService::Freshservice::User::CustomField->new(
+      id      => $self->id,
+      api     => $self->api,
+      field   => $key,
+      value   => $custom_field->{$key},
+    ) if defined $key;
+  }
+  return $fields;
+}
+
+method get_custom_field($field) {
+  croak "Custom field must exist in freshservice" 
+    unless exists $self->_raw->{agent}{user}{custom_field}{$field};
+  return $self->_get_cf($field);
+}
+
 method delete_requester {
   croak("This method is not available to Agents");
 }
 
 method update_requester {
+  croak("This method is not available to Agents");
+}
+
+method set_custom_field {
   croak("This method is not available to Agents");
 }
 

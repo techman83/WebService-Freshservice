@@ -7,7 +7,9 @@ use Method::Signatures 20140224;
 use List::MoreUtils qw(any);
 use Carp qw( croak );
 use JSON qw( encode_json );
+use WebService::Freshservice::User::CustomField;
 use Moo;
+use MooX::HandlesVia;
 use namespace::clean;
 
 # ABSTRACT: Freshservice User
@@ -43,7 +45,6 @@ has '_raw'              => ( is => 'rwp', lazy => 1, builder => 1, clearer => 1 
 # Fixed fields
 has 'active'            => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
 has 'created_at'        => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
-has 'custom_field'      => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
 has 'deleted'           => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
 has 'department_names'  => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
 has 'helpdesk_agent'    => ( is => 'rwp', lazy => 1, builder => '_build_user', clearer => 1 );
@@ -74,7 +75,7 @@ method _build_user {
 
 method _build__attributes {
   my @attributes = qw( 
-    active created_at custom_field deleted department_names 
+    active custom_field created_at deleted department_names
     helpdesk_agent updated_at
   );
   push(@attributes, @{$self->_attributes_rw});
@@ -127,7 +128,7 @@ a single attribute.
   
 API returns 200 OK and no content regardless if the put resulted in a
 successful change. Returns 1, croaks on failure.
-  
+
 =cut
 
 method update_requester(:$attr?, :$value?) {
@@ -145,12 +146,91 @@ method update_requester(:$attr?, :$value?) {
   return 1;
 }
 
+=method custom_fields
+
+  $requester->custom_fields;
+  
+Will return a hash of WebService::Freshservice::User::CustomField objects. Returns
+an empty object if your freshservice instance doesn't have any custom fields
+configured.
+
+=cut
+
+has 'custom_field' => (
+  is            => 'rwp',
+  handles_via   => 'Hash',
+  lazy          => 1,
+  builder       => 1,
+  clearer       => 1,
+  handles       => {
+    _get_cf       => 'get',
+    _set_cf       => 'set',
+    custom_fields => 'keys'
+  },
+);
+
+method _build_custom_field {
+  my $custom_field = $self->_raw->{user}{custom_field};
+  my $fields = { };
+  foreach my $key ( keys $custom_field ) {
+    $fields->{$key} = WebService::Freshservice::User::CustomField->new(
+      id      => $self->id,
+      api     => $self->api,
+      field   => $key,
+      value   => $custom_field->{$key},
+    ) if defined $key;
+  }
+  return $fields;
+}
+
+=method set_custom_field
+
+  $requester->set_custom_field(
+    field => 'cf_field_name',
+    value => 'field value',
+  );
+
+Set a custom field value. Takes an optional attribute of 'update'
+which can be set to '0' and it will not 'PUT' the changes (handy
+if you are trying to limit API calls and want are calling
+'$requester->update_requester' later);
+
+=cut
+
+method set_custom_field(:$field, :$value, :$update = 1) {
+  my $custom_field = $self->_get_cf($field);
+  $custom_field->value($value);
+  $custom_field->update_custom_field if $update;
+  return;
+}
+
+=method get_custom_field
+
+  say $updated->get_custom_field('cf_field_name')->value;
+
+  or
+
+  $custom_field = $updated->get_custom_field('cf_field_name');
+
+Returns a WebService::Freshservice::User::CustomField object of
+the named Custom Field. Croaks if the field doesn't exist in
+freshservice.
+
+=cut
+
+method get_custom_field($field) {
+  croak "Custom field must exist in freshservice" 
+    unless exists $self->_raw->{user}{custom_field}{$field};
+  return $self->_get_cf($field);
+}
+
 # Internal method that returns a clean perl data structure
 # for encode_json
 method TO_JSON {
   my $data->{user} = {
     address       => $self->address,
     description   => $self->description,
+    custom_field  => $self->custom_field,
     email         => $self->email,
     external_id   => $self->external_id,
     language      => $self->language,

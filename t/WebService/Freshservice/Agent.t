@@ -33,7 +33,17 @@ sub agent_testing {
     is( $agent->active, 1, "'active' returned true");
     is( $agent->address, "An Address", "'address' returned a value");
     is( $agent->created_at, '2015-01-02T22:56:39-10:00', "'created_at' returned a raw date");
-    ok( $agent->custom_field, "'custom_field' exists");
+    cmp_deeply( 
+      $agent->get_custom_field('cf_field_name'),  
+      all(
+        isa("WebService::Freshservice::User::CustomField"),
+        methods( 
+          value => 'field value',
+          field => 'cf_field_name',
+          api   =>  ignore(),
+        ),
+      ), "'custom_field' returns a object"
+    );
     is( $agent->deleted, 0, "'deleted' returned false");
     is( $agent->department_names, '', "'department_names' returned empty");
     is( $agent->description, "I'm Testy McTestFace", "'description' returned a value");
@@ -60,6 +70,11 @@ sub agent_testing {
     is( $agent->user_id, '1234567890', "'user_id' returned a value" );
     is( $agent->user_created_at, '2016-07-11T16:02:28+08:00', "'user_created_at' returned a raw date");
     is( $agent->user_updated_at, '2016-07-18T09:28:47+08:00', "'user_updated_at' returned a raw date");
+    throws_ok
+      { $agent->get_custom_field('no field') }
+      qr/Custom field must exist in freshservice/,
+      "'get_custom_field' dies if retrieval of a field isn't present"
+    ;
   };
    
   subtest 'Failures' => sub {
@@ -67,8 +82,9 @@ sub agent_testing {
     dies_ok { $agent->_build_user_override('argument') } "method '_build_user_override' doesn't accept arguments";
     dies_ok { $agent->_build_agent('argument') } "method '_build_agent' doesn't accept arguments";
     dies_ok { $agent->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
-    dies_ok { $agent->delete_requester } "method 'delete_requester' not available for agents";
-    dies_ok { $agent->update_requester } "method 'update_requester' not available for agents";
+    throws_ok { $agent->delete_requester } qr/This method is not available to Agents/, "method 'delete_requester' not available for agents";
+    throws_ok { $agent->update_requester } qr/This method is not available to Agents/, "method 'update_requester' not available for agents";
+    throws_ok { $agent->set_custom_field } qr/This method is not available to Agents/, "method 'update_requester' not available for agents";
   };
 }
 
