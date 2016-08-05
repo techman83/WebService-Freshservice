@@ -97,8 +97,8 @@ get '/itil/requesters.json' => sub {
 put '/itil/requesters/:id' => sub {
   my $data = from_json(request->body);
   $putuser->{user} = $putuser->{user} ? $putuser->{user} : dclone config->{testdata}{user};
-  foreach my $key (keys $data->{user}) {
-    $putuser->{user}{$key} = $data->{user}{$key}; 
+  while ( my ( $key, $value ) = each %{ $data->{user} }) {
+    $putuser->{user}{$key} = $value; 
   }
   return;
 };
