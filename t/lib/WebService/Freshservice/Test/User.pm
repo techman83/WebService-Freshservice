@@ -107,12 +107,12 @@ del '/itil/requesters/:id' => sub {
   send_as html => "deleted";
 };
 
-get '/invalid' => sub {
+any '/invalid' => sub {
   send_as html => '{ invalid json }';
 };
 
-post '/invalid' => sub {
-  send_as html => '{ invalid json }';
+any '/error' => sub {
+  send_error('{"errors":{"error":"Generic Error"}}', 404);
 };
 
 1;

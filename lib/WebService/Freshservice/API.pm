@@ -107,7 +107,7 @@ method post_api ($endpoint,$content) {
 
   $api->put_api( "itil/requesters.json", $data );
 
-API returns 200 OK with no content. Croaks on failure.
+Returns 1 on success. Croaks on failure.
 
 =cut
 
@@ -127,7 +127,7 @@ method put_api ($endpoint,$content) {
   # uncoverable branch true
   say Dumper($result) if $DEBUG;
   croak "API failed - error: '".$result->message."'" unless $result->is_success;
-  return;
+  return 1;
 }
 
 =method delete_api

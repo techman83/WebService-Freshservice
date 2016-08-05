@@ -176,7 +176,7 @@ sub user_testing {
     );
     throws_ok
       { $no_cf->get_custom_field('no field') }
-      qr/Custom field must exist in freshservice/,
+      qr/Custom field must exist in Freshservice/,
       "'get_custom_field' dies if retrieval of a field isn't present"
     ;
 
