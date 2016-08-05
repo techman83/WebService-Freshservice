@@ -170,14 +170,13 @@ has 'custom_field' => (
 );
 
 method _build_custom_field {
-  my $custom_field = $self->_raw->{user}{custom_field};
   my $fields = { };
-  foreach my $key ( keys %$custom_field ) {
+  foreach my $key ( keys %{ $self->_raw->{user}{custom_field} } ) {
     $fields->{$key} = WebService::Freshservice::User::CustomField->new(
       id      => $self->id,
       api     => $self->api,
       field   => $key,
-      value   => $custom_field->{$key},
+      value   => $self->_raw->{user}{custom_field}{$key},
     );
   }
   return $fields;
