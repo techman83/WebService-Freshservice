@@ -30,8 +30,13 @@ sub requester_testing {
 
   subtest 'Create Requester - Minimal Options' => sub {
     my $requester = $freshservice->create_requester(
-      name  => "Test",
-      email => 'test@example.com',
+      name        => "Test",
+      email       => 'test@example.com',
+      address     => 'An Address',
+      description => "I'm Testy McTestFace",
+      job_title   => 'Tester of Things',
+      language    => 'en',
+      timezone    => 'Perth',
     );
 
     is( $requester->active, 1, "'active' returned true");
@@ -66,8 +71,12 @@ sub requester_testing {
     );
     is( $mobile->mobile, "0406000000", "Requester creation with mobile" );
 
-    dies_ok { $freshservice->create_requester( email => 'test@example.com' ) } "method 'create_requester' requires the name attribute";
-    dies_ok { $freshservice->create_requester( name => 'Test', address => '111' ) } "method 'create_requester' requires one of 'email', 'phone' or 'mobile'  attributes";
+    throws_ok { $freshservice->create_requester( email => 'test@example.com' ) } 
+      qr/Name must be definded to create a user/,
+      "method 'create_requester' requires the name attribute";
+    throws_ok { $freshservice->create_requester( name => 'Test', address => '111' ) } 
+      qr/One of email, phone or mobile must be definded to create a user/,
+      "method 'create_requester' requires one of 'email', 'phone' or 'mobile'  attributes";
   };
   
   subtest 'Retrieve Requester' => sub {
@@ -138,9 +147,16 @@ sub requester_testing {
         mobile  => 'test',
         phone   => 'test',
         state   => 'test',
+        page    => 'test',
+        page    => 'test',
+      ) 
+    } "method 'requesters' only takes 5 arguments";
+    dies_ok { 
+      $freshservice->requesters(
+        email   => 'test',
         test    => 'test',
       ) 
-    } "method 'requesters' only takes 4 arguments";
+    } "method 'requesters' only takes valid arguments";
     dies_ok { 
       $freshservice->create_requester(
         name        => 'test',
@@ -152,9 +168,28 @@ sub requester_testing {
         mobile      => 'test',
         language    => 'test',
         timezone    => 'test',
-        test        => 'test',
+        name        => 'test',
       ) 
     } "method 'create_requester' only takes 10 arguments";
+    dies_ok { 
+      $freshservice->create_requester(
+        name        => 'test',
+        test        => 'test',
+      ) 
+    } "method 'create_requester' only takes valid arguments";
+    dies_ok { 
+      $freshservice->requester(
+        id      => 'test',
+        email   => 'test',
+        email   => 'test',
+      ) 
+    } "method '_user' only takes 2 arguments";
+    dies_ok { 
+      $freshservice->requester(
+        id      => 'test',
+        test    => 'test',
+      ) 
+    } "method '_user' only takes valid arguments";
   };
 }
 
