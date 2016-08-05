@@ -17,7 +17,7 @@ before_install:
 install:
   # Deal with all of the DZIL dependancies, quickly and quietly
   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
-  - cpanm --quiet --notest --skip-satisfied Dancer2 Storable Test::Perl::Critic
+  - cpanm --quiet --notest --skip-satisfied Dancer2 Storable Test::Perl::Critic Test::Exception
   - dzil authordeps | grep -vP '[^\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied
   - dzil listdeps | grep -vP '[^\w:]' |  xargs -n 5 -P 10 cpanm --quiet --notest
   - cpanm --quiet --notest Devel::Cover::Report::Coveralls
