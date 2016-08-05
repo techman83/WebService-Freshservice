@@ -72,12 +72,12 @@ method _build_agent {
 
 method _build_custom_field {
   my $fields = { };
-  foreach my $key ( keys %{ $self->_raw->{agent}{user}{custom_field} } ) {
+  while ( my ( $key, $value ) = each %{ $self->_raw->{agent}{user}{custom_field} } ) {
     $fields->{$key} = WebService::Freshservice::User::CustomField->new(
       id      => $self->id,
       api     => $self->api,
       field   => $key,
-      value   => $self->_raw->{agent}{user}{custom_field}{$key},
+      value   => $value,
     );
   }
   return $fields;
