@@ -194,7 +194,19 @@ sub user_testing {
     dies_ok { $user->_build_user('argument') } "method '_build_user' doesn't accept arguments";
     dies_ok { $user->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
     dies_ok { $user->_build__attributes('argurment') } "method '_build__attributes' doesn't accept arguments";
-    dies_ok { $user->_clear_all('argurment') } "method '_clear_all' doesn't accept arguments";
+    dies_ok { $user->_build__attributes_rw('argurment') } "method '_build__attributes_rw' doesn't accept arguments";
+    dies_ok { $user->_build_custom_field('argurment') } "method '_build_custom_field' doesn't accept arguments";
+    dies_ok { $user->_clear_all('argument') } "method '_clear_all' doesn't accept arguments";
+    dies_ok { $user->delete_requester('argurment') } "method 'delete_reqester' doesn't accept arguments";
+    dies_ok { $user->update_requester(attr => 1, value => 1, attr => 1) } "method 'update_requester' only takes 4 arguments";
+    dies_ok { $user->update_requester(attr => 1, cow => 1) } "method 'update_requester' requires valid arguments";
+    dies_ok { $user->set_custom_field(field => 1, value => 1, update => 1, update => 1) } "method 'set_custom_field' only takes 6 arguments";
+    dies_ok { $user->set_custom_field() } "method 'set_custom_field' requires arguments";
+    dies_ok { $user->get_custom_field() } "method 'get_custom_field' requires arguments";
+    dies_ok { $user->set_custom_field('arg1', 'value') } "method 'set_custom_field' only accepts valid arguments";
+    dies_ok { $user->get_custom_field('arg1','arg2') } "method 'get_custom_field' only takes 1 argument";
+    dies_ok { $user->TO_JSON('argument') } "method 'TO_JSON' doesn't accept arguments";
+    throws_ok { $user->update_requester( attr => 'mobile' ) } qr/'value' required if providing an 'attr'/, "method 'update_requester' requires a 'value' if a 'attr' is provided";
   };
 }
 

@@ -178,7 +178,7 @@ method _build_custom_field {
       api     => $self->api,
       field   => $key,
       value   => $custom_field->{$key},
-    ) if defined $key;
+    );
   }
   return $fields;
 }

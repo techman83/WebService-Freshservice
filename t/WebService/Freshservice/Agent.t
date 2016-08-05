@@ -82,6 +82,12 @@ sub agent_testing {
     dies_ok { $agent->_build_user_override('argument') } "method '_build_user_override' doesn't accept arguments";
     dies_ok { $agent->_build_agent('argument') } "method '_build_agent' doesn't accept arguments";
     dies_ok { $agent->_build__raw('argurment') } "method '_build__raw' doesn't accept arguments";
+    dies_ok { $agent->_build_custom_field('argurment') } "method '_build__custom_field' doesn't accept arguments";
+    dies_ok { $agent->get_custom_field() } "method 'get_custom_field' requires an argument";
+    dies_ok { $agent->get_custom_field('arg1', 'arg2') } "method 'get_custom_field' only accepts a single argument";
+    dies_ok { $agent->delete_requester('argument') } "method 'delete_requester' doesn't accept arguments";
+    dies_ok { $agent->update_requester('argument') } "method 'update_requester' doesn't accept arguments";
+    dies_ok { $agent->set_custom_field('argument') } "method 'set_custom_field' doesn't accept arguments";
     throws_ok { $agent->delete_requester } qr/This method is not available to Agents/, "method 'delete_requester' not available for agents";
     throws_ok { $agent->update_requester } qr/This method is not available to Agents/, "method 'update_requester' not available for agents";
     throws_ok { $agent->set_custom_field } qr/This method is not available to Agents/, "method 'update_requester' not available for agents";
