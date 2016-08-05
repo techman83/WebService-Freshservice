@@ -45,6 +45,7 @@ sub user_testing {
   
   subtest 'Failures' => sub {
     dies_ok { $custom_field->update_custom_field('argument') } "method 'update_custom_field' doesn't accept arguments";
+    dies_ok { $custom_field->TO_JSON('argument') } "method 'TO_JSON' doesn't accept arguments";
   };
 }
 
