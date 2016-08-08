@@ -110,6 +110,7 @@ method _user( :$id?, :$email? ) {
 use WebService::Freshservice::User;
 
 =method requester
+
   $freshservice->requester( id => '123456789' );
 
 Returns a WebService::Freshservice::User on success, croaks on failure.
@@ -123,6 +124,7 @@ method requester(...) {
 }
 
 =method requesters
+
   $freshservice->requesters( email => 'test@example.com');
 
 Perform a search on the provided attribute and optional state. If
@@ -193,6 +195,7 @@ method create_requester(
 use WebService::Freshservice::Agent;
 
 =method agent
+
   $freshservice->agent( id => '123456789' );
 
 Returns a WebService::Freshservice::Agent on success, croaks on failure.
@@ -206,6 +209,7 @@ method agent(...) {
 }
 
 =method agent
+
   $freshservice->agent( email => 'test@example.com');
 
 Perform a search on the provided attribute and optional state. If
