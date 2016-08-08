@@ -54,7 +54,7 @@ method test_with_dancer($test, $number_tests) {
     my $pid = fork();
 
     if (!$pid) {
-      exec("t/bin/cached_api.pl");
+      exec($^X,"t/bin/cached_api.pl");
     }
 
     # Allow some time for the instance to spawn. TODO: Make this smarter
