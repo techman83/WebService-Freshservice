@@ -42,6 +42,13 @@ method test_with_auth($test, $number_tests) {
 
 method test_with_dancer($test, $number_tests) {
   SKIP: {
+    if ($^O eq 'MSWin32') {
+      eval {  
+        require Win32::Process;
+        require Win32;
+      };
+      skip 'These tests are for cached testing and require Win32::Process on Windows.', $number_tests if ($@);
+    }
     eval {  
       require Dancer2;
       require Storable;
@@ -53,8 +60,6 @@ method test_with_dancer($test, $number_tests) {
 
     my ($win32_processobj, $pid);
     if ($^O eq 'MSWin32') {
-        require Win32::Process;
-        require Win32;
         Win32::Process::Create($win32_processobj,
             "$^X",
             "$^X t/bin/cached_api.pl",
