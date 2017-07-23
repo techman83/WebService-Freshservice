@@ -1,4 +1,6 @@
 {{$NEXT}}
+          Fix broken API tests.
+          Fix tests under Windows - Alexandr Ciornii
 
 0.003     2016-08-08 14:07:50+08:00 Australia/Perth
           Minor pod tweaks.
